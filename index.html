@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Touch Pet">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./assets/pet-placeholder.svg">
+  <link rel="stylesheet" href="./style.css">
+  <title>AstrBot Touch Pet</title>
+</head>
+<body>
+  <main class="world" id="world">
+    <div class="sky-glow"></div>
+    <header class="topbar">
+      <div><span class="status-dot" id="statusDot"></span><span id="statusText">正在等你</span></div>
+      <button class="icon-button" id="settingsButton" aria-label="设置">⚙</button>
+    </header>
+
+    <section class="speech" id="speech" aria-live="polite">
+      <span id="speechText">碰一碰我吧。</span>
+    </section>
+
+    <section class="pet-stage" id="petStage" aria-label="桌宠触摸区域">
+      <div class="pet-shadow"></div>
+      <img class="pet idle pixel-pet" id="pet" src="./assets/pet-placeholder.svg" alt="可触摸的桌宠">
+      <div class="eye-glow left"></div><div class="eye-glow right"></div>
+    </section>
+
+    <p class="hint" id="gestureHint">轻戳 · 长按 · 拖拽 · 双击</p>
+    <div class="cooldown" id="cooldown" hidden><span id="cooldownText">30 秒后可以再碰我</span><i id="cooldownBar"></i></div>
+  </main>
+
+  <dialog class="panel pairing-panel" id="settingsDialog">
+    <div class="panel-head"><div><small>只保存在这台手机</small><h2 id="pairingTitle">桌宠配对</h2></div><button class="close" data-close="settingsDialog">×</button></div>
+    <form id="settingsForm" class="settings-form">
+      <label>配对令牌<input id="pairToken" type="password" autocomplete="current-password" placeholder="输入服务器设置的配对令牌"></label>
+      <button class="primary" type="submit">保存并连接</button>
+      <p class="privacy-note">这是桌宠配对令牌，不是 AstrBot API Key。AstrBot 密钥只保存在服务器。</p>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+  <script src="./pet-config.js"></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>

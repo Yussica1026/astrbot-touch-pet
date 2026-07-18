@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="桌宠占位图">
+  <defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a9bfd6"/><stop offset="1" stop-color="#667f9d"/></linearGradient></defs>
+  <ellipse cx="256" cy="450" rx="132" ry="24" fill="#081426" opacity=".35"/>
+  <path d="M143 202 98 118l91 48M369 202l45-84-91 48" fill="url(#b)" stroke="#263d59" stroke-width="14" stroke-linejoin="round"/>
+  <circle cx="256" cy="275" r="154" fill="url(#b)" stroke="#263d59" stroke-width="14"/>
+  <circle cx="203" cy="256" r="24" fill="#d9f4ff"/><circle cx="309" cy="256" r="24" fill="#d9f4ff"/>
+  <circle cx="203" cy="260" r="11" fill="#18324f"/><circle cx="309" cy="260" r="11" fill="#18324f"/>
+  <path d="M228 319q28 26 56 0" fill="none" stroke="#263d59" stroke-width="13" stroke-linecap="round"/>
+  <path d="M256 292c-17 0-27 9-27 20 0 10 12 17 27 17s27-7 27-17c0-11-10-20-27-20Z" fill="#263d59"/>
+  <text x="256" y="92" text-anchor="middle" font-family="sans-serif" font-size="38" fill="#d9f4ff">PET</text>
+</svg>
+

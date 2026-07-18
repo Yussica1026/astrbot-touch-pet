@@ -1,0 +1,35 @@
+name: AstrBotTouchPet
+options:
+  bundleIdPrefix: io.github.astrbot
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    SWIFT_VERSION: "5.0"
+targets:
+  TouchPetApp:
+    type: application
+    platform: iOS
+    info:
+      path: App/Info.plist
+    sources:
+      - path: App
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.astrbot.touchpet.ios
+        CODE_SIGN_ENTITLEMENTS: App/TouchPetApp.entitlements
+    dependencies:
+      - target: TouchPetLiveActivity
+  TouchPetLiveActivity:
+    type: app-extension
+    platform: iOS
+    info:
+      path: LiveActivity/Info.plist
+    sources:
+      - path: LiveActivity
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.astrbot.touchpet.ios.liveactivity
+        CODE_SIGN_ENTITLEMENTS: LiveActivity/TouchPetLiveActivity.entitlements
+

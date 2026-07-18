@@ -1,0 +1,14 @@
+{
+  "name": "AstrBot Touch Pet",
+  "short_name": "Touch Pet",
+  "description": "可自由换皮的 AstrBot 触摸桌宠 PWA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1220",
+  "theme_color": "#111827",
+  "icons": [
+    { "src": "./assets/pet-placeholder.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
