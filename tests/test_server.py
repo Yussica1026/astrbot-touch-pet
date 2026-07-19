@@ -14,6 +14,7 @@ class AstrBotBridgeTests(unittest.IsolatedAsyncioTestCase):
             body = json.loads(request.content)
             if request.url.path == "/api/v1/chat":
                 self.assertEqual(body["username"], "test_user")
+                self.assertEqual(body["session_id"], "test-platform:FriendMessage:test-session")
                 self.assertEqual(body["message"], "用户戳了你一下")
                 stream = (
                     'data: {"type":"message","data":{"content":{"type":"text","data":{"text":"收到，"}}}}\n\n'
@@ -30,9 +31,11 @@ class AstrBotBridgeTests(unittest.IsolatedAsyncioTestCase):
             old_base = server.settings.astrbot_base_url
             old_username = server.settings.chat_username
             old_umo = server.settings.target_umo
+            old_session_id = server.settings.configured_chat_session_id
             server.settings.astrbot_base_url = "http://astrbot"
             server.settings.chat_username = "test_user"
             server.settings.target_umo = "test-platform:FriendMessage:test-session"
+            server.settings.configured_chat_session_id = ""
             try:
                 reply = await server.generate_reply(client, "用户戳了你一下")
                 await server.send_qq_message(client, reply)
@@ -40,6 +43,7 @@ class AstrBotBridgeTests(unittest.IsolatedAsyncioTestCase):
                 server.settings.astrbot_base_url = old_base
                 server.settings.chat_username = old_username
                 server.settings.target_umo = old_umo
+                server.settings.configured_chat_session_id = old_session_id
 
         self.assertEqual(reply, "收到，我感觉到了。")
         self.assertEqual(sent["umo"], "test-platform:FriendMessage:test-session")
@@ -51,6 +55,18 @@ class AstrBotBridgeTests(unittest.IsolatedAsyncioTestCase):
 
     def test_signal_whitelist(self):
         self.assertEqual(set(server.SIGNALS), {"tap", "long_press", "drag", "double_tap"})
+
+    def test_explicit_session_keeps_context_isolated(self):
+        old_umo = server.settings.target_umo
+        old_session_id = server.settings.configured_chat_session_id
+        server.settings.target_umo = "platform:FriendMessage:session"
+        server.settings.configured_chat_session_id = "touch_pet_signal"
+        try:
+            self.assertEqual(server.settings.chat_session_id, "touch_pet_signal")
+            self.assertFalse(server.settings.shares_target_context)
+        finally:
+            server.settings.target_umo = old_umo
+            server.settings.configured_chat_session_id = old_session_id
 
 
 if __name__ == "__main__":

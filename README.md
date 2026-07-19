@@ -95,7 +95,8 @@ ASTRBOT_BASE_URL=http://127.0.0.1:6185
 ASTRBOT_API_KEY=YOUR_ASTRBOT_API_KEY
 ASTRBOT_TARGET_UMO=platform_id:FriendMessage:session_id
 ASTRBOT_CHAT_USERNAME=touch_pet_user
-ASTRBOT_CHAT_SESSION_ID=touch_pet_signal
+# 留空：触摸事件注入目标聊天的同一个上下文
+ASTRBOT_CHAT_SESSION_ID=
 
 TOUCH_PET_PAIR_TOKEN=REPLACE_WITH_A_LONG_RANDOM_TOKEN
 COOLDOWN_SECONDS=30
@@ -122,6 +123,23 @@ python scripts/generate_pair_token.py
 将 AstrBot 返回的完整 UMO 原样写入 `ASTRBOT_TARGET_UMO`。
 
 不要只填写类似 `FriendMessage_123456` 的旧式会话标识。旧标识可能让 `/api/v1/im/message` 返回 HTTP 200，但消息没有实际送达。
+
+### Share the target chat context
+
+默认将 `ASTRBOT_CHAT_SESSION_ID` 留空。后端会自动复用 `ASTRBOT_TARGET_UMO` 作为 AstrBot Chat API 的 `session_id`，因此桌宠触摸事件和目标 QQ 私聊进入同一个上下文：用户触摸桌宠后，AI 在后续 QQ 对话中也知道这次触摸。
+
+```dotenv
+ASTRBOT_TARGET_UMO=platform_id:FriendMessage:session_id
+ASTRBOT_CHAT_SESSION_ID=
+```
+
+如果明确希望桌宠对话与 QQ 私聊相互隔离，才设置一个独立值：
+
+```dotenv
+ASTRBOT_CHAT_SESSION_ID=touch_pet_signal
+```
+
+服务启动日志会显示当前使用“目标聊天同一上下文”还是“独立上下文”，但不会输出完整 UMO。
 
 ### Customize the pet
 

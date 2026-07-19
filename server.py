@@ -45,12 +45,21 @@ class Settings:
         self.target_umo = os.getenv("ASTRBOT_TARGET_UMO", "")
         # AstrBot OpenAPI 会把 username 作为 sender/user_id；如需关联记忆，请在 .env 中填写对应 ID。
         self.chat_username = os.getenv("ASTRBOT_CHAT_USERNAME", "touch_pet_user")
-        self.chat_session_id = os.getenv("ASTRBOT_CHAT_SESSION_ID", "touch_pet_signal")
+        # 默认复用目标聊天的完整 UMO，让触摸事件进入同一个上下文；显式填写时才创建独立上下文。
+        self.configured_chat_session_id = os.getenv("ASTRBOT_CHAT_SESSION_ID", "").strip()
         # 新变量优先；旧变量仅用于兼容早期私人原型。
         self.pair_token = os.getenv("TOUCH_PET_PAIR_TOKEN", os.getenv("STONE_DOG_PAIR_TOKEN", ""))
         self.cooldown = max(1, int(os.getenv("COOLDOWN_SECONDS", "30")))
         self.hourly_limit = max(1, int(os.getenv("MAX_REQUESTS_PER_HOUR", "60")))
         self.timeout = max(10.0, float(os.getenv("ASTRBOT_TIMEOUT_SECONDS", "120")))
+
+    @property
+    def chat_session_id(self) -> str:
+        return self.configured_chat_session_id or self.target_umo
+
+    @property
+    def shares_target_context(self) -> bool:
+        return self.chat_session_id == self.target_umo
 
     def validate(self) -> None:
         missing = []
@@ -175,7 +184,8 @@ def verify_token(authorization: str | None) -> str:
 @app.on_event("startup")
 async def startup() -> None:
     settings.validate()
-    logger.info("触摸桌宠服务启动；AstrBot=%s；目标 UMO 已配置", settings.astrbot_base_url)
+    context_mode = "目标聊天同一上下文" if settings.shares_target_context else "独立上下文"
+    logger.info("触摸桌宠服务启动；AstrBot=%s；目标 UMO 已配置；会话模式=%s", settings.astrbot_base_url, context_mode)
 
 
 @app.get("/api/health")
