@@ -90,6 +90,8 @@ function updateCooldown() {
     $('#gestureHint').hidden = false;
     clearInterval(cooldownTimer);
     localStorage.removeItem(cooldownKey);
+    $('#chatInput').disabled = false;
+    $('#chatSend').disabled = false;
     return;
   }
   const total = COOLDOWN_FALLBACK * 1000;
@@ -97,7 +99,51 @@ function updateCooldown() {
   $('#gestureHint').hidden = true;
   $('#cooldownText').textContent = `${Math.ceil(remainingMs / 1000)} 秒后可以再碰我`;
   $('#cooldownBar').style.transform = `scaleX(${Math.max(0, remainingMs / total)})`;
+  $('#chatInput').disabled = true;
+  $('#chatSend').disabled = true;
 }
+
+async function sendChat(message) {
+  if (Date.now() < cooldownUntil) return showSpeech('再等我一下，上一条还在路上。');
+  if (!pairToken) {
+    showSpeech(config.pairPrompt || '先和桌宠配对一下吧。');
+    settingsDialog.showModal();
+    return;
+  }
+  setPetState('talking');
+  showSpeech('正在把这句话送过去……', 8000);
+  try {
+    const response = await fetch('./api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${pairToken}` },
+      body: JSON.stringify({ message, request_id: makeRequestId() })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      pairToken = '';
+      localStorage.removeItem(tokenKey);
+      throw new Error('配对令牌不正确，请重新设置');
+    }
+    if (response.status === 429) {
+      startCooldown(Number(data.retry_after || COOLDOWN_FALLBACK));
+      throw new Error('消息正在冷却，再等一下哦');
+    }
+    if (!response.ok || !data.ok) throw new Error(data.detail || '服务器没有确认送达');
+    $('#chatInput').value = '';
+    showSpeech('这句话已经送到了', 4200);
+    startCooldown(Number(data.cooldown_seconds || COOLDOWN_FALLBACK));
+  } catch (error) {
+    showSpeech(`${error.message || '消息没有送到'}，轻轻再试一次`, 4200);
+  } finally {
+    setTimeout(() => setPetState('idle'), 700);
+  }
+}
+
+$('#chatForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const message = $('#chatInput').value.trim();
+  if (message) sendChat(message);
+});
 
 async function sendSignal(gesture) {
   if (Date.now() < cooldownUntil) {

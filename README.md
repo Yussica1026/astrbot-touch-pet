@@ -4,7 +4,7 @@
 
 一个手机优先、可自由换皮的 AstrBot 触摸桌宠 PWA。
 
-用户可以单击、长按、拖拽或双击自己的桌宠。网页将触摸信号发送给服务器，服务器交给 AstrBot 中的 AI 自行生成回应，再通过 AstrBot 主动消息接口发送到指定会话。
+用户可以单击、长按、拖拽、双击桌宠，也可以在页面底部发送文字。服务器先把原始触摸或文字零 token 转发到目标会话，再交给 AstrBot 中的 AI 自行生成回应。
 
 > 本项目源自一只私人专属桌宠的实现。公开仓库不包含该私人角色的图片、称呼、会话配置或其他个人资料，只提供可复用的通用模板。
 
@@ -29,8 +29,11 @@
 - 屏幕旋转或尺寸变化时自动限制在可见区域，避免桌宠被拖丢
 - 宠物名称、图片、提示文字与触摸信号均可替换
 - FastAPI 单端口提供静态页面和触摸 API
+- 页面内文字输入与 `POST /api/chat`
+- 从 `data_v4.db` 的 `conversations` 表读取最近 10 条 QQ 上下文
 - 对接 AstrBot `/api/v1/chat`
-- 兼容 AstrBot 4.22.3 的 SSE `type=plain` 文本事件
+- 兼容 AstrBot 4.22.3 的 SSE `type=plain` 文本事件，并过滤工具调用 `chain_type`
+- 触摸和文字先通过主动消息零 token 通知目标会话
 - 通过 `/api/v1/im/message` 主动发送消息
 - 30 秒冷却、请求 ID 幂等、每小时限流
 - 配对令牌与服务端 API Key 分离
@@ -102,6 +105,8 @@ TOUCH_PET_PAIR_TOKEN=REPLACE_WITH_A_LONG_RANDOM_TOKEN
 COOLDOWN_SECONDS=30
 MAX_REQUESTS_PER_HOUR=60
 ASTRBOT_TIMEOUT_SECONDS=120
+ASTRBOT_CONTEXT_DB_PATH=/AstrBot/data/data_v4.db
+ASTRBOT_CONTEXT_LIMIT=10
 ```
 
 早期私人原型使用的 `STONE_DOG_PAIR_TOKEN` 仍可兼容读取；新项目请统一使用 `TOUCH_PET_PAIR_TOKEN`。

@@ -32,6 +32,10 @@
 
     <p class="hint" id="gestureHint">轻戳 · 长按 · 拖拽 · 双击</p>
     <div class="cooldown" id="cooldown" hidden><span id="cooldownText">30 秒后可以再碰我</span><i id="cooldownBar"></i></div>
+    <form class="chat-composer" id="chatForm">
+      <input id="chatInput" maxlength="2000" autocomplete="off" aria-label="发送文字消息" placeholder="写一句话给他……">
+      <button id="chatSend" type="submit" aria-label="发送">↑</button>
+    </form>
   </main>
 
   <dialog class="panel pairing-panel" id="settingsDialog">

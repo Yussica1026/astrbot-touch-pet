@@ -1,5 +1,8 @@
 import json
+import sqlite3
+import tempfile
 import unittest
+from pathlib import Path
 
 import httpx
 
@@ -52,6 +55,30 @@ class AstrBotBridgeTests(unittest.IsolatedAsyncioTestCase):
     def test_extract_astrbot_plain_event(self):
         payload = {"type": "plain", "data": "实机返回文本"}
         self.assertEqual(server.extract_event_text(payload), "实机返回文本")
+
+    def test_tool_chain_event_is_not_rendered_as_reply(self):
+        payload = {"chain_type": "tool", "data": {"text": '{"name":"fetch"}'}}
+        self.assertEqual(server.extract_event_text(payload), "")
+
+    def test_context_comes_from_conversations_table(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "data_v4.db"
+            connection = sqlite3.connect(path)
+            connection.execute("CREATE TABLE conversations (id TEXT, history TEXT, updated_at TEXT)")
+            history = json.dumps([
+                {"role": "user", "content": "第一条"},
+                {"role": "assistant", "content": "第二条"},
+            ], ensure_ascii=False)
+            connection.execute("INSERT INTO conversations VALUES ('qq', ?, '2026-08-07')", (history,))
+            connection.commit()
+            connection.close()
+            old_path = server.settings.context_db_path
+            server.settings.context_db_path = str(path)
+            try:
+                context = server.fetch_qq_context()
+            finally:
+                server.settings.context_db_path = old_path
+        self.assertEqual(context, "用户：第一条\nAI：第二条")
 
     def test_signal_whitelist(self):
         self.assertEqual(set(server.SIGNALS), {"tap", "long_press", "drag", "double_tap"})
